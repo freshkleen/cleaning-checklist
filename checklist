@@ -1,0 +1,36 @@
+import streamlit as st
+
+def checklist_app():
+    """A simple checklist app for mobile devices using Streamlit."""
+
+    st.title("Task Checklist")
+
+    # Load tasks from session state or initialize
+    if 'tasks' not in st.session_state:
+        st.session_state.tasks = {} # Initialize empty dictionary to hold tasks and completion status.
+
+    # Function to add a new task
+    def add_task():
+        if st.session_state.new_task:
+            st.session_state.tasks[st.session_state.new_task] = False # Add task with initial status False (not completed)
+            st.session_state.new_task = "" # Clear the input field
+
+    # Input for adding a new task
+    st.text_input("Add a new task:", key="new_task", on_change=add_task)
+
+    # Display and manage tasks
+    tasks_to_delete = [] # list to hold tasks to be deleted after display loop
+    for task, completed in st.session_state.tasks.items():
+        col1, col2, col3 = st.columns([0.6, 0.2, 0.2]) # Creates column for checkbox, task name, and delete button.
+        with col1:
+            st.session_state.tasks[task] = st.checkbox(task, value=completed)
+        with col3:
+            if st.button("Delete", key=f"delete_{task}"):
+                tasks_to_delete.append(task) # Add task to delete queue
+
+    # Delete tasks after the display loop prevents streamlit errors.
+    for task in tasks_to_delete:
+      del st.session_state.tasks[task]
+
+if __name__ == "__main__":
+    checklist_app()
